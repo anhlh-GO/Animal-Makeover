@@ -6,3 +6,8 @@ dump/
 out/
 work/
 __pycache__/
+android/.gradle/
+android/build/
+android/app/build/
+android/app/src/main/assets/www/
+android/local.properties
