@@ -1,0 +1,8 @@
+# extraction intermediates (rebuild with tools/*.py)
+sym.pkl
+types.pkl
+classes.json
+dump/
+out/
+work/
+__pycache__/

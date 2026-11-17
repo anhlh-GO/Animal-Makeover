@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Animal Makeover ASMR</title>
+<link rel="icon" href="icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#2a1a3a">
+<style>
+@font-face{font-family:"Lilita One";src:url(assets/fonts/LilitaOne-Regular.ttf) format("truetype");font-display:block}
+html,body{margin:0;height:100%;background:#17111f;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none}
+body{display:flex;align-items:center;justify-content:center}
+canvas{display:block;touch-action:none}
+#boot{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font:700 18px sans-serif}
+</style>
+</head>
+<body>
+<div id="boot">Loading…</div>
+<canvas id="c"></canvas>
+<script>window.BUILD="dev";</script>
+<script src="js/engine.js"></script>
+<script src="js/render.js"></script>
+<script src="js/input.js"></script>
+<script src="js/fx.js"></script>
+<script src="js/anim.js"></script>
+<script src="js/lf_core.js"></script>
+<script src="js/lf_scratch.js"></script>
+<script src="js/lf_steps.js"></script>
+<script src="js/lf_misc.js"></script>
+<script src="js/skinfx.js"></script>
+<script src="js/game.js"></script>
+<script>if(/[?&]bot=1/.test(location.search))document.write('<script src="js/bot.js"><'+'/script>')</script>
+<script src="js/main.js"></script>
+</body>
+</html>
