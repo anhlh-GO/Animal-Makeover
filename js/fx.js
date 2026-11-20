@@ -154,6 +154,7 @@ const P = (E.particles = {
       if (c.rmode === 1) { const sp = Math.hypot(vx, vy); const L = size * (rend.ls == null ? 2 : rend.ls) + sp * (rend.vs || 0); ctx.rotate(Math.atan2(vy, vx)); w = Math.max(size, L); h = size; }
       else ctx.rotate(-p.rot);
       const rgb = [p.col[0] * col[0] * tm[0], p.col[1] * col[1] * tm[1], p.col[2] * col[2] * tm[2]];
+      if (comp._tint) { const v = (comp._tintVar || 0) * (p.r3 * 2 - 1); for (let i = 0; i < 3; i++) { const t = comp._tint[i]; rgb[i] *= v >= 0 ? t + (1 - t) * v : t * (1 + v); } } // SprayMist dye
       if (img) {
         let sx = 0, sy = 0, sw = img.width, sh = img.height;
         if (c.tiles) { const tx = c.tiles[0] || 1, ty = c.tiles[1] || 1; sw = img.width / tx; sh = img.height / ty; const fr = Math.floor((ev(c.tiles[3], 0, p.r6) * tx * ty + ev(c.tiles[2], k, p.r6) * tx * ty * (c.tiles[5] || 1))) % (tx * ty); sx = (fr % tx) * sw; sy = Math.floor(fr / tx) * sh; }

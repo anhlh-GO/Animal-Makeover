@@ -610,16 +610,24 @@ const drawMaskedSR = (it) => {
   ctx = main; E.ctx = ctx;
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(maskCanvas, 0, 0);
 };
+const drawErrs = new Set();
 const drawItems = (items) => {
   sortItems(items);
+  const main = ctx;
   for (const it of items) {
-    if (it.kind === 'group') drawItems(it.items);
-    else if (it.kind === 'sr') { if (it.c.mi) drawMaskedSR(it); else drawSR(it.c, it.alpha); }
-    else if (it.kind === 'spine') E.drawSpine(it.c, it.alpha);
-    else if (it.kind === 'wtxt') drawTxt(it.c, it.c.go, it.alpha, true);
-    else if (it.kind === 'canvas') { const pend = []; drawUI(it.g, it.alpha, [], pend, true, true, true); if (pend.length) drawCanvases(pend); }
-    else if (it.kind === 'custom') it.c.drawWorld(ctx, it.alpha);
-    else if (it.kind === 'ps') E.particles.draw(it.c, ctx);
+    // one item failing must not take the rest of the frame (the character) with it
+    try {
+      if (it.kind === 'group') drawItems(it.items);
+      else if (it.kind === 'sr') { if (it.c.mi) drawMaskedSR(it); else drawSR(it.c, it.alpha); }
+      else if (it.kind === 'spine') E.drawSpine(it.c, it.alpha);
+      else if (it.kind === 'wtxt') drawTxt(it.c, it.c.go, it.alpha, true);
+      else if (it.kind === 'canvas') { const pend = []; drawUI(it.g, it.alpha, [], pend, true, true, true); if (pend.length) drawCanvases(pend); }
+      else if (it.kind === 'custom') it.c.drawWorld(ctx, it.alpha);
+      else if (it.kind === 'ps') E.particles.draw(it.c, ctx);
+    } catch (e) {
+      ctx = main; E.ctx = ctx; ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+      const k = it.kind + ':' + ((it.c && it.c.go && it.c.go.name) || ''); if (!drawErrs.has(k)) { drawErrs.add(k); console.warn('draw failed', k, e); }
+    }
   }
 };
 

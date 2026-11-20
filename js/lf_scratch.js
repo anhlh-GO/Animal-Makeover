@@ -396,6 +396,9 @@ class ScratchStep extends LF.LevelStep {
   async openSurface() {
     const s = this.surface(); if (!s) return;
     const g = this.surfaceGO(); g.setActive(true);
+    // a group's members live elsewhere in the scene and wait switched off (the wet hair that comes in as the tangled
+    // hair is rinsed away): it is their turn too. Left off, the old layer goes and nothing comes in - she loses her hair.
+    if (s.members) for (const m of s.surfaces()) if (m.go && !m.go.activeSelf) m.go.setActive(true);
     s.setMode(this.d._mode);
     if (this.d._resetSurfaceOnBegin) s.resetSurface();
     s.setInput(true);
@@ -487,6 +490,7 @@ class ScratchStep extends LF.LevelStep {
   fastForward() {
     const s = this.surface(); const g = this.surfaceGO();
     if (g) g.setActive(true);
+    if (s && s.members) for (const m of s.surfaces()) if (m.go && !m.go.activeSelf) m.go.setActive(true);
     if (s) { s.setMode(this.d._mode); const done = () => { for (const x of s.surfaces()) if (x.mask) { x.mask.fill(1); x.dirty = true; } }; if (s.ready) done(); else LF.until(() => s.ready).then(done); }
     LF.invoke(this, this.d._onBegan); LF.invoke(this, this.d._onProgressChanged, 1); LF.invoke(this, this.d._onCompleted);
     if (this.d._hideOnComplete && g && this.d._mode === 0) g.setActive(false);

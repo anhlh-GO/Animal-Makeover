@@ -93,11 +93,14 @@ void main(){
 
 let gl = null, cv = null, prog = null, U = {}, buf = null, hairTex = null, failed = false;
 const CW = 1024, CH = 1024;
-const texs = new WeakMap();
+let texs = new WeakMap();
+const disable = (why) => { if (!failed) console.warn('skinfx off, sprites drawn plain:', why); failed = true; gl = null; };
 const init = () => {
   if (gl || failed) return !!gl;
   try {
     cv = document.createElement('canvas'); cv.width = CW; cv.height = CH;
+    // a lost context draws nothing: fall back to plain sprites instead of losing the character
+    cv.addEventListener('webglcontextlost', (e) => { e.preventDefault(); disable('context lost'); });
     gl = cv.getContext('webgl2', { premultipliedAlpha: true, preserveDrawingBuffer: true, antialias: false, alpha: true, depth: false, stencil: false });
     if (!gl) throw new Error('no webgl2');
     const sh = (t, src) => { const s = gl.createShader(t); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
@@ -158,8 +161,12 @@ const active = (p, b) => {
 };
 const vtx = new Float32Array(24);
 // draw the sprite through the shader; x,y,w,h = local quad (as drawSR passes to blit). Returns false to fall back.
+// any throw in here (tainted image, driver error) must not abort the frame's drawing: switch the effect off instead
 G.draw = (c, s, ov, x, y, w, h, blit) => {
-  if (!G.on) return false;
+  if (!G.on || failed) return false;
+  try { return drawFX(c, s, ov, x, y, w, h, blit); } catch (e) { disable(e && e.message); return false; }
+};
+const drawFX = (c, s, ov, x, y, w, h, blit) => {
   const p = fxOf(c); if (!p) return false;
   const m = c.go.worldMatrix(); const fx = c.fx ? -1 : 1, fy = c.fy ? -1 : 1;
   const corners = [[x, y], [x + w, y], [x, y + h], [x + w, y + h]].map((q) => M.ap(m, q[0] * fx, q[1] * fy));
@@ -196,8 +203,26 @@ G.draw = (c, s, ov, x, y, w, h, blit) => {
   }
   gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  if (gl.isContextLost()) { disable('context lost'); return false; }
+  // the first few times a sprite goes through the shader, make sure something came out (some GPUs/WebViews return
+  // an empty buffer); if not, the effect is switched off for good and the sprite is drawn plain
+  const n = (c._fxN = (c._fxN || 0) + 1);
+  if (n <= 3 || n % 90 === 0) {
+    let want = 0, got = 1;
+    try {
+      if (c._fxWant == null || ov) c._fxWant = coverage(img, ov ? 0 : s[1], ov ? 0 : s[2], ov ? iw : s[3], ov ? ih : s[4]);
+      want = c._fxWant; got = coverage(cv, 0, CH - H, W, H);
+    } catch (e) { /* unreadable source: skip the check */ }
+    if (want > 0.02 && got < want * 0.35) { disable('empty output for ' + c.go.name + ' ' + got.toFixed(3) + '/' + want.toFixed(3)); return false; }
+  }
   blit(cv, 0, CH - H, W, H, x, y, w, h);
   return true;
+};
+let chk = null;
+const coverage = (src, sx, sy, sw, sh) => {
+  if (!chk) { const k = document.createElement('canvas'); k.width = k.height = 24; chk = k.getContext('2d', { willReadFrequently: true }); }
+  chk.clearRect(0, 0, 24, 24); chk.drawImage(src, sx, sy, sw, sh, 0, 0, 24, 24);
+  const d = chk.getImageData(0, 0, 24, 24).data; let a = 0; for (let i = 3; i < d.length; i += 4) a += d[i]; return a / (576 * 255);
 };
 
 // ------------------------------------------------------------------ the contact the active scratch step reports each frame
