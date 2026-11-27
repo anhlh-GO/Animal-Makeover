@@ -49,7 +49,7 @@ B.step = async (s) => {
   B.log.push(c + ' ' + s.go.name);
   if (c === 'ScratchStep' || c === 'ChosenScratchStep') return B.scratch(s);
   if (c === 'PluckStep') {
-    for (const p of s.refs('_pieces').filter(Boolean)) { if (p.phase) continue; const w = p.go.worldPos(); if (s.d._tool) { const tool = s.ref('_tool'); await B.down(grabPoint(tool)); await tipFollow(tool, [w, [w[0] + 0.5, w[1] + 0.5], [w[0] + 1, w[1] + 1]]); await B.up(LF.ptrWorld()); } else if (s.d._dragOut) { await B.drag(w, [w[0] + 1.5, w[1] + 1.5], 12); await B.up(LF.ptrWorld()); } else { await B.down([w[0] - 0.6, w[1] - 0.3]); for (let i = 0; i <= 8; i++) await B.move([w[0] - 0.6 + 1.2 * i / 8, w[1] - 0.3 + 0.6 * i / 8]); await B.up(LF.ptrWorld()); } await sleep(250); }
+    for (const p of s.refs('_pieces').filter(Boolean)) { if (p.phase) continue; const w = p.go.worldPos(); if (s.d._tool) { const tool = s.ref('_tool'); await B.down(grabPoint(tool)); await tipFollow(tool, [w, [w[0] + 0.5, w[1] + 0.5], [w[0] + 1, w[1] + 1]]); await B.up(LF.ptrWorld()); } else if (s.d._tapPlucks) { await B.tap(w); } else if (s.d._dragOut) { await B.drag(w, [w[0] + 1.5, w[1] + 1.5], 12); await B.up(LF.ptrWorld()); } else { await B.down([w[0] - 0.6, w[1] - 0.3]); for (let i = 0; i <= 8; i++) await B.move([w[0] - 0.6 + 1.2 * i / 8, w[1] - 0.3 + 0.6 * i / 8]); await B.up(LF.ptrWorld()); } await sleep(250); }
     return;
   }
   if (c === 'TapStep') { const t = s.refs('_targets').filter(Boolean)[0]; if (!t) return; const w = colCenter(t); if (s.d._tool) { const tool = s.ref('_tool'); await LF.until(() => !tool.arriving && !tool.locked); await B.down(grabPoint(tool)); await tipFollow(tool, [w, w]); await B.up(LF.ptrWorld()); } else await B.tap(center(t.go)); return; }

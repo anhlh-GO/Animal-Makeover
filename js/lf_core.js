@@ -252,7 +252,7 @@ class LevelStepsRunner extends E.Behaviour {
     LF.invoke(this, this.d._onLevelStarted);
     await LF.wait(this.d._openingDelaySeconds || 0);
     const groups = this.d._groups || [];
-    const q = new URLSearchParams(location.search); const skipTo = +(q.get('step') || -1);
+    const q = new URLSearchParams(location.search); const skipTo = LF.skipTo != null ? LF.skipTo : +(q.get('step') || -1); LF.skipTo = null;
     for (let gi = 0; gi < groups.length; gi++) {
       const grp = groups[gi];
       const steps = (grp._steps || []).map((s) => E.resolve(this.go, s)).filter((s) => s && s.run);

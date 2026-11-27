@@ -6,10 +6,17 @@ step configuration. Splash, main menu (level selection, settings) and all 9 make
 Cat, Watermelon, Alligator, Parrot, Husky, ButterFly, Panda, Bunny, PolarBear. Ads are removed; locked looks and
 levels open for free.
 
+New levels (designed in the level sheet, not in the original game):
+- Pip the hedgehog (`Hedgehog`, scene `level11`, 27 steps): art in `../anh animal/` cut into sprites by
+  `tools/pip_export.py` (-> `assets/tex/pip/`, `data/level11_pack.json`); the scene frame (camera, UI, finale) comes
+  from the Bunny scene via `tools/pip_scene.py` (-> `data/level11.json`); `js/pip.js` builds the stage and steps.
+
 - Run: serve this folder with any static server and open `index.html`.
 - Live: https://anhlh-go.github.io/Animal-Makeover/
 - Android: https://github.com/anhlh-GO/Animal-Makeover/releases/latest/download/Animal-Makeover.apk (built by `.github/workflows/apk.yml`, WebView wrapper in `android/`)
 - Dev: `?scene=level2`..`level10` opens a level directly, `&step=N` skips to step group N, `&bot=1` autoplays, `?nofx=1` turns the shader effects off, `?nofeel=1` turns off the game-feel components in js/lf_feel.js.
+- Cheats (`js/cheat.js`, panel on the left edge, `?cheat=0` hides it): skip the current step, jump to the level's photo,
+  pass the level, unlock every level card.
 
 Layout: `js/engine.js render.js input.js fx.js anim.js` = small Unity-scene runtime on Canvas2D;
 `js/lf_core.js lf_scratch.js lf_steps.js lf_misc.js` = the game's data-driven LevelFlow step framework re-implemented;
